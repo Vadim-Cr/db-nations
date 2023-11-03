@@ -1,17 +1,36 @@
+import java.sql.*;
+
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
 // then press Enter. You can now see whitespace characters in your code.
 public class Main {
     public static void main(String[] args) {
-        // Press Alt+Invio with your caret at the highlighted text to see how
-        // IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        String url = "jdbc:mysql://localhost:3306/db_nations";
+        String user = "root";
+        String password = "root";
 
-        // Press Maiusc+F10 or click the green arrow button in the gutter to run the code.
-        for (int i = 1; i <= 5; i++) {
 
-            // Press Maiusc+F9 to start debugging your code. We have set one breakpoint
-            // for you, but you can always add more by pressing Ctrl+F8.
-            System.out.println("i = " + i);
+        try (Connection con = DriverManager.getConnection(url, user, password)) {
+            String sql = "select c.name, c.country_id, r.name, c2.name " +
+                    "from countries c " +
+                    "join regions r on c.region_id = r.region_id " +
+                    "join continents c2 on c2.continent_id = r.continent_id " +
+                    "order by c.name";
+            // la connection prepara uno statement sql
+            try (PreparedStatement preparedStatement = con.prepareStatement(sql)){
+
+                // eseguo il prepared statement
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()){
+                    String countryName = resultSet.getString(1);
+                    int countryId = resultSet.getInt(2);
+                    String regionName = resultSet.getString(3);
+                    String continentName = resultSet.getString(4);
+                    System.out.println( countryName + " " + countryId + " " + regionName + " " + continentName);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }
